@@ -42,9 +42,9 @@ def get_main_keyboard():
     builder = ReplyKeyboardBuilder()
     builder.add(types.KeyboardButton(text="📸 Начать смену"))
     builder.add(types.KeyboardButton(text="🔚 Закончить смену"))
-    builder.add(types.KeyboardButton(text="💰 Переход на сдельную"))
+    # builder.add(types.KeyboardButton(text="💰 Переход на сдельную"))
     builder.add(types.KeyboardButton(text="🚚 Перемещение бригады"))
-    builder.adjust(2, 2)
+    builder.adjust(2, 1)
     return builder.as_markup(resize_keyboard=True)
 
 # Клавиатура с кнопкой Отмена
