@@ -3,6 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from config import GROUP_ID
+from states import Form
 from keyboards import get_main_inline_keyboard, get_cancel_keyboard, get_confirm_keyboard, get_geo_confirm_keyboard, get_locations_keyboard
 from aiogram.enums import ParseMode
 
@@ -25,17 +26,43 @@ async def handle_inline_cancel(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "start_shift")
 async def handle_start_shift(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("Вы выбрали: Начать смену", reply_markup=get_main_inline_keyboard())
+    await state.update_data(action_type="start")
+    await state.set_state(Form.shift_action)
+    await callback.message.edit_text(
+        "📍 Выберите объект:",
+        reply_markup=get_locations_keyboard()
+    )
     await callback.answer()
 
 @router.callback_query(F.data == "end_shift")
 async def handle_end_shift(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("Вы выбрали: Закончить смену", reply_markup=get_main_inline_keyboard())
+    await state.update_data(action_type="end")
+    await state.set_state(Form.shift_action)
+    await callback.message.edit_text(
+        "📍 Выберите объект:",
+        reply_markup=get_locations_keyboard()
+    )
     await callback.answer()
 
 @router.callback_query(F.data == "move_team")
 async def handle_move_team(callback: CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("Вы выбрали: Перемещение бригады", reply_markup=get_main_inline_keyboard())
+    await state.set_state(Form.transfer_current_location)
+    await callback.message.edit_text(
+        "📍 Выберите текущий объект:",
+        reply_markup=get_locations_keyboard()
+    )
+    await callback.answer()
+    
+@router.callback_query(F.data == "piecework")
+async def handle_piecework(callback: CallbackQuery, state: FSMContext):
+    await state.set_state(Form.piecework)
+    await callback.message.edit_text(
+        "✍️ Введите данные в формате:\n"
+        "<b>Объект, Наименование работы, Фамилии сотрудников</b>\n\n"
+        "Пример: <code>Успенская 6, Установка плинтусов в квартире 34, Раджабов Усмонов</code>",
+        parse_mode=ParseMode.HTML,
+        reply_markup=get_cancel_keyboard()
+    )
     await callback.answer()
 
 @router.callback_query(F.data == "send_location")

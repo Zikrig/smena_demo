@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import GROUP_ID
 from states import Form
-from keyboards import get_locations_keyboard, get_cancel_keyboard, get_main_keyboard
+from keyboards import get_locations_keyboard, get_cancel_keyboard, get_main_inline_keyboard
 from datetime import datetime
 
 from aiogram import Router
@@ -95,4 +95,4 @@ async def handle_shift_photo(message: Message, state: FSMContext):
         parse_mode=ParseMode.HTML
     )
     await state.clear()
-    await message.answer("✅ Данные отправлены в группу!", reply_markup=get_main_keyboard())
+    await message.answer("✅ Данные отправлены в группу!", reply_markup=get_main_inline_keyboard())

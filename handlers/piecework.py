@@ -4,7 +4,7 @@ from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
 from config import GROUP_ID
 from states import Form
-from keyboards import get_cancel_keyboard, get_main_keyboard
+from keyboards import get_cancel_keyboard, get_main_inline_keyboard
 from datetime import datetime
 
 router = Router()
@@ -50,5 +50,5 @@ async def handle_piecework_data(message: Message, state: FSMContext):
     await state.clear()
     await message.answer(
         "✅ Данные отправлены в группу!",
-        reply_markup=get_main_keyboard()
+        reply_markup=get_main_inline_keyboard()
     )
