@@ -3,17 +3,6 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
 from config import LOCATIONS
 
-def get_main_keyboard():
-    builder = ReplyKeyboardBuilder()
-    builder.add(types.KeyboardButton(text="📸 Начать смену"))
-    builder.add(types.KeyboardButton(text="🔚 Закончить смену"))
-    # builder.add(types.KeyboardButton(text="💰 Переход на сдельную"))
-    builder.add(types.KeyboardButton(text="🚚 Перемещение бригады"))
-    builder.add(types.KeyboardButton(text="📍 Геолокация", request_location=True))
-    builder.add(types.KeyboardButton(text="🔴 Кружочек"))
-    builder.adjust(2, 1, 2)
-    return builder.as_markup(resize_keyboard=True)
-
 def get_cancel_keyboard():
     builder = InlineKeyboardBuilder()
     builder.button(text="❌ Отмена", callback_data="cancel_action")

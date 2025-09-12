@@ -3,7 +3,7 @@ from aiogram.filters import CommandStart
 from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
 from config import GROUP_ID
-from keyboards import get_main_inline_keyboard, get_cancel_keyboard, get_confirm_keyboard
+from keyboards import get_main_inline_keyboard, get_cancel_keyboard, get_confirm_keyboard, get_geo_confirm_keyboard, get_locations_keyboard
 from aiogram.enums import ParseMode
 
 router = Router()
@@ -23,12 +23,27 @@ async def handle_inline_cancel(callback: CallbackQuery, state: FSMContext):
     await callback.message.edit_text("Действие отменено", reply_markup=get_main_inline_keyboard())
     await callback.answer()
 
+@router.callback_query(F.data == "start_shift")
+async def handle_start_shift(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text("Вы выбрали: Начать смену", reply_markup=get_main_inline_keyboard())
+    await callback.answer()
+
+@router.callback_query(F.data == "end_shift")
+async def handle_end_shift(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text("Вы выбрали: Закончить смену", reply_markup=get_main_inline_keyboard())
+    await callback.answer()
+
+@router.callback_query(F.data == "move_team")
+async def handle_move_team(callback: CallbackQuery, state: FSMContext):
+    await callback.message.edit_text("Вы выбрали: Перемещение бригады", reply_markup=get_main_inline_keyboard())
+    await callback.answer()
+
 @router.callback_query(F.data == "send_location")
 async def ask_location(callback: CallbackQuery, state: FSMContext):
     await state.set_state("waiting_location")
     await callback.message.edit_text(
         "Пожалуйста, отправьте свою геолокацию через вложение (скрепка) или кнопку ниже.",
-        reply_markup=get_cancel_keyboard()
+        reply_markup=get_geo_confirm_keyboard()
     )
     await callback.answer()
 
@@ -37,8 +52,8 @@ async def handle_location(message: Message, state: FSMContext):
     if await state.get_state() == "waiting_location":
         await state.update_data(location_message_id=message.message_id)
         await message.answer(
-            "Отправить эту геолокацию в группу?",
-            reply_markup=get_confirm_keyboard("confirm_location")
+            "Готово к отправке. Нажмите 'Отправить геолокацию' ниже.",
+            reply_markup=get_geo_confirm_keyboard()
         )
 
 @router.callback_query(F.data == "confirm_location")
