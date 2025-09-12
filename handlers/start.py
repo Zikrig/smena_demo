@@ -38,6 +38,6 @@ async def handle_video_note(message: Message, state: FSMContext):
 async def handle_location(message: Message, state: FSMContext):
     lat = message.location.latitude
     lon = message.location.longitude
-    await message.bot.send_message(GROUP_ID, f"📍 Геолокация: {lat}, {lon}")
+    await message.bot.send_location(chat_id=GROUP_ID, latitude=lat, longitude=lon)
     await state.clear()
     await message.answer("✅ Геолокация отправлена в группу!", reply_markup=get_main_keyboard())
