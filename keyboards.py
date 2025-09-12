@@ -38,3 +38,10 @@ def get_confirm_keyboard(action):
     builder.button(text="❌ Отмена", callback_data="cancel_action")
     builder.adjust(2)
     return builder.as_markup()
+
+def get_geo_confirm_keyboard():
+    builder = InlineKeyboardBuilder()
+    builder.button(text="✅ Отправить геолокацию", callback_data="confirm_location")
+    builder.button(text="❌ Отмена", callback_data="cancel_action")
+    builder.adjust(2)
+    return builder.as_markup()
