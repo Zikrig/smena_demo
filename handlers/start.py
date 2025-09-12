@@ -1,10 +1,10 @@
 from aiogram import Router, F
 from aiogram.filters import CommandStart
-from aiogram.types import Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from aiogram.fsm.context import FSMContext
 from config import GROUP_ID
 from states import Form
-from keyboards import get_main_inline_keyboard, get_cancel_keyboard, get_confirm_keyboard, get_geo_confirm_keyboard, get_locations_keyboard
+from keyboards import get_main_inline_keyboard, get_cancel_keyboard, get_confirm_keyboard, get_locations_keyboard
 from aiogram.enums import ParseMode
 
 router = Router()
@@ -67,32 +67,54 @@ async def handle_piecework(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "send_location")
 async def ask_location(callback: CallbackQuery, state: FSMContext):
-    await state.set_state("waiting_location")
-    await callback.message.edit_text(
-        "Пожалуйста, отправьте свою геолокацию через вложение (скрепка) или кнопку ниже.",
-        reply_markup=get_geo_confirm_keyboard()
+    location_keyboard = ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="📍 Отправить геолокацию", request_location=True)],
+            [KeyboardButton(text="❌ Отмена")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
     )
+    
+    # Отправляем новое сообщение с реплай-клавиатурой вместо редактирования старого
+    await callback.message.answer(
+        "Нажмите кнопку ниже чтобы отправить геолокацию:",
+        reply_markup=location_keyboard
+    )
+    await state.set_state("waiting_location")
     await callback.answer()
 
 @router.message(F.content_type == "location")
 async def handle_location(message: Message, state: FSMContext):
     if await state.get_state() == "waiting_location":
-        await state.update_data(location_message_id=message.message_id)
+        await message.bot.send_location(
+            chat_id=GROUP_ID,
+            latitude=message.location.latitude,
+            longitude=message.location.longitude
+        )
         await message.answer(
-            "Готово к отправке. Нажмите 'Отправить геолокацию' ниже.",
-            reply_markup=get_geo_confirm_keyboard()
+            "✅ Геолокация отправлена в группу!",
+            reply_markup=ReplyKeyboardRemove()
+        )
+        await state.clear()
+        await message.answer(
+            "Выберите действие:",
+            reply_markup=get_main_inline_keyboard()
         )
 
-@router.callback_query(F.data == "confirm_location")
-async def confirm_location(callback: CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    location_message_id = data.get("location_message_id")
-    if location_message_id:
-        await callback.bot.forward_message(chat_id=GROUP_ID, from_chat_id=callback.from_user.id, message_id=location_message_id)
+@router.message(F.text == "❌ Отмена")
+async def handle_cancel(message: Message, state: FSMContext):
+    if await state.get_state() == "waiting_location":
+        await message.answer(
+            "❌ Отменено",
+            reply_markup=ReplyKeyboardRemove()
+        )
         await state.clear()
-        await callback.message.edit_text("✅ Геолокация отправлена в группу!", reply_markup=get_main_inline_keyboard())
-    await callback.answer()
-
+        await message.answer(
+            "Выберите действие:",
+            reply_markup=get_main_inline_keyboard()
+        )
+        
 @router.callback_query(F.data == "send_round")
 async def ask_round(callback: CallbackQuery, state: FSMContext):
     await state.set_state("waiting_round")

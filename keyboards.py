@@ -1,6 +1,6 @@
 from aiogram import types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from aiogram.utils.keyboard import ReplyKeyboardMarkup, InlineKeyboardBuilder
 from config import LOCATIONS
 
 def get_cancel_keyboard():
@@ -45,3 +45,14 @@ def get_geo_confirm_keyboard():
     builder.button(text="❌ Отмена", callback_data="cancel_action")
     builder.adjust(2)
     return builder.as_markup()
+
+# keyboards.py
+def get_geo_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [types.KeyboardButton(text="📍 Отправить геолокацию", request_location=True)],
+            [types.KeyboardButton(text="❌ Отмена")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=True
+    )
