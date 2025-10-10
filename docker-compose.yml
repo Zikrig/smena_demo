@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  smena-bot:
+    build: .
+    container_name: smena-bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # Монтируем .env файл для удобства разработки
+      - ./.env:/app/.env:ro
+    # Опционально: можно добавить логирование
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
